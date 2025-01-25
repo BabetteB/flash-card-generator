@@ -1,5 +1,4 @@
 import { openai } from '../utils/openAIUtils';
-import { parseAssistantResponse } from '../utils/parseAssistantResponse';
 import { File } from 'node-fetch'; // Import File from node-fetch
 
 export const createFlashcards = async (content: string, pdfFile: Express.Multer.File) => {
@@ -20,12 +19,12 @@ export const createFlashcards = async (content: string, pdfFile: Express.Multer.
       purpose: 'assistants',
     });
 
-    // 2) Create a Thread with an initial user message
+    // Create a Thread with an initial user message
     const thread = await openai.beta.threads.create({
       messages: [
         {
           role: 'user',
-          content: `Please generate flashcards from this PDF. Please cover all subjects`,
+          content: 'Please generate flashcards from this PDF. Please cover all subjects',
           attachments: [
             {
               file_id: uploadedFile.id,
@@ -36,33 +35,48 @@ export const createFlashcards = async (content: string, pdfFile: Express.Multer.
       ],
     });
 
-    // 3) Create a Run and poll until it completes
+    // Create a Run and poll until it completes
     const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
       assistant_id: assistantId,
-      response_format: { type: 'json_object' },
-    }) as any;
-    
+    });
+
     if (run.status !== 'completed') {
       throw new Error(`Run did not complete. Status: ${run.status}`);
     }
-    
-    const finalAssistantMessage = run.result?.message;
-    
-    if (!finalAssistantMessage) {
-      throw new Error('No final assistant message found.');
+
+    // Retrieve all messages in the thread
+    const response = await openai.beta.threads.messages.list(thread.id);
+
+    // Find the assistant's message
+    const assistantMessage = response.data.find(
+      (message) => message.role === 'assistant'
+    );
+
+    if (!assistantMessage) {
+      throw new Error('No assistant message found.');
     }
 
-    // 5) Parse the response as JSON
+    // Extract the content of the assistant's message
+    let finalAssistantMessage = '';
+    for (const contentItem of assistantMessage.content) {
+      if (contentItem.type === 'text') {
+        finalAssistantMessage += contentItem.text.value;
+      }
+    }
+
+    if (!finalAssistantMessage) {
+      throw new Error('Assistant message content is empty.');
+    }
+
+    // Parse the response as JSON
     let flashcards = [];
     try {
-      if (finalAssistantMessage.content) {
-        const parsed = JSON.parse(finalAssistantMessage.content);
-        if (parsed && parsed.flashcards) {
-          flashcards = parsed.flashcards;
-        }
+      const parsed = JSON.parse(finalAssistantMessage);
+      if (parsed && parsed.flashcards) {
+        flashcards = parsed.flashcards;
       }
     } catch (err) {
-      console.error('Assistant response is not valid JSON:', finalAssistantMessage.content);
+      console.error('Assistant response is not valid JSON:', finalAssistantMessage);
       throw new Error('Assistant did not return valid JSON.');
     }
 
