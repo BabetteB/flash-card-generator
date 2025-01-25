@@ -1,5 +1,6 @@
 import { openai } from '../utils/openAIUtils';
 import { parseAssistantResponse } from '../utils/parseAssistantResponse';
+import { File } from 'node-fetch'; // Import File from node-fetch
 
 export const createFlashcards = async (content: string, pdfFile: Express.Multer.File) => {
   const assistantId = process.env.ASSISTANT_ID;
@@ -8,13 +9,15 @@ export const createFlashcards = async (content: string, pdfFile: Express.Multer.
   }
 
   try {
-    // 1) Upload the PDF to OpenAI
+    // Create a File object from the buffer
+    const file = new File([pdfFile.buffer], pdfFile.originalname, {
+      type: pdfFile.mimetype,
+      lastModified: Date.now(),
+    });
+
     const uploadedFile = await openai.files.create({
-      file: {
-        name: pdfFile.originalname, // Original filename from multer
-        data: pdfFile.buffer,       // Buffer data from multer
-      },
-      purpose: 'assistants', // Ensure the purpose is correctly set
+      file: file, // Pass the File object
+      purpose: 'assistants',
     });
 
     // 2) Create a Thread with an initial user message
@@ -36,16 +39,15 @@ export const createFlashcards = async (content: string, pdfFile: Express.Multer.
     // 3) Create a Run and poll until it completes
     const run = await openai.beta.threads.runs.createAndPoll(thread.id, {
       assistant_id: assistantId,
-      response_format: { type: 'json_object' }, // Request the response in JSON format
-    });
-
+      response_format: { type: 'json_object' },
+    }) as any;
+    
     if (run.status !== 'completed') {
       throw new Error(`Run did not complete. Status: ${run.status}`);
     }
-
-    // 4) Retrieve the final assistant message
-    const finalAssistantMessage = run.result.message;
-
+    
+    const finalAssistantMessage = run.result?.message;
+    
     if (!finalAssistantMessage) {
       throw new Error('No final assistant message found.');
     }
