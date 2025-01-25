@@ -400,3 +400,7 @@ FodyWeavers.xsd
 *.sln.iml
 backend/package*.json
 client/package*.json
+backend/package-lock.json
+backend/package.json
+client/package-lock.json
+client/package.json
