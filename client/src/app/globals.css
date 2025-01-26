@@ -1,13 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --purple: #43388F;
+  --purple_tinted: #EBE9FA;
+  --purple_shaded: #2C334F;
+  
+  --green: #459F62;
+  --green_tinted: #D9E7DE;
+  --green_shaded: #355E4A;
+  
+  --orange: #D96244;
+  --orange_tinted: #F2E3E0;
+  --orange_shaded: #B33A1C;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+h1 {
+  color: var(--purple-shaded);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+h2 {
+  font-family: "Red Hat Display", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  color: var(--purple-shaded);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+h3 {
+  font-family: "Red Hat Display", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  color: var(--purple-shaded);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.highlighed {
+  color: var(--purple-shaded);
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+p {
+  font-family: "Red Hat Display", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
 }
 
 html,
@@ -17,9 +57,7 @@ body {
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'RedHatDisplay';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -35,8 +73,67 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+.divider{
+  margin: 8pt 0pt 16pt 0pt;
+  height: 1pt;
+  width: 100%;
+  background-color: var(--purple_tinted);
+}
+
+@media only screen and (min-width: 900px) {
+  :root{
+    --collection_width: 120pt;
+    --collection_height: 154pt;
+  }
+
+  h1 {
+    font-size: 48pt;
+  }
+
+  h2 {
+    font-size: 36pt;
+  }
+
+  h3 {
+    font-size: 18pt;
+  }
+
+  p {
+    font-size: 14pt;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  :root{
+    --collection_width: 100pt;
+    --collection_height: 124pt;
+  }
+
+  h1 {
+    font-size: 36pt;
+  }
+
+  h2 {
+    font-size: 24pt;
+  }
+
+  h3 {
+    font-size: 16pt;
+  }
+
+  p {
+    font-size: 12pt;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  h2 {
+    font-size: 18pt;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  h2 {
+    font-size: 14pt;
   }
 }
