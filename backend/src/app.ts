@@ -1,9 +1,9 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+dotenv.config();
 import flashcardRoutes from './routes/flashcardRoute';
 
-dotenv.config();
 
 const app: Application = express();
 
